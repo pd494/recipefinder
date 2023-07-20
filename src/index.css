@@ -1,0 +1,166 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  
+
+}
+
+ .RecipeList{
+  display: flex;
+  flex-direction:row;
+  gap: 7%;
+  margin-top: 15%;
+  justify-content: space-evenly;
+}
+
+
+.left{
+  display:flex;
+  border-radius: px;
+
+  flex-direction:column;
+  width: 30%;
+  margin-right: 40px;
+}
+
+
+.right {
+  background-color: bisque;
+  border-radius: px;
+
+  float: left; 
+  width: 70%;
+}
+
+
+.line {
+  width: 2px;
+  background-color: #000;
+  /* Additional styles for the line */
+  /* height: 100%; */
+  position:relative;
+  min-height: 100vh;
+  flex-shrink: 0;
+
+
+  
+
+}
+
+
+.submit{
+  margin-top: 250px;
+}
+
+.container{
+  display:flex;
+  flex-direction: left;
+  clear: both;
+  padding: 0;
+  margin: 0;
+
+
+}
+
+
+
+
+
+
+.selected{
+ 
+  margin-left:40px;
+  margin-bottom: 15px;
+  background-color: red;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  row-gap: 10mm;
+}
+
+.Card{
+  display:flex;
+  flex-direction: column-reverse;
+  background-color:#76b5c5;
+}
+
+
+
+
+
+
+h1 {
+  text-align: center;
+}
+
+.btn   {
+  margin-left: 45%;
+  margin-top: 5%;
+  margin-bottom: 5%;
+
+  padding: 15px 40px;
+  background-color: #5AA9E6;
+  /* background-color: #3f51b5; */
+  /* color: #fff; */
+  border: none;
+  cursor: pointer;
+  font-size: 16px;  
+  
+}
+
+.CardButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  /* background-color: #3f51b5; */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 3px;
+}
+
+.CardButton:hover {
+  background-color: #32408f;
+}
+
+.CardImage {
+  width: 35px;
+  height: 35px;
+  margin-right: 5px;
+}
+
+
+.SearchBar {
+  display: flex;
+  flex-direction:column;
+  flex-grow:max;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.SearchBar input[type="text"] {
+  flex-grow: 1;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.SearchBar button {
+  padding: 5px 40px;
+  background-color: #5AA9E6;
+  /* background-color: #3f51b5; */
+  /* color: #fff; */
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+

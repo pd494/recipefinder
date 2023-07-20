@@ -1,0 +1,34 @@
+[
+    {
+        "name": "broccoli",
+        "image": "broccoli.jpg"
+    },
+    {
+        "name": "broccolini",
+        "image": "broccolini.jpg"
+    },
+    {
+        "name": "romanesco",
+        "image": "romanesco.png"
+    },
+    {
+        "name": "broccoli rabe",
+        "image": "broccoli-rabe.jpg"
+    },
+    {
+        "name": "broccoli slaw",
+        "image": "slaw-mix.png"
+    },
+    {
+        "name": "broccoli florets",
+        "image": "broccoli.jpg"
+    },
+    {
+        "name": "broccoli sprouts",
+        "image": "alfalfa-sprouts.png"
+    },
+    {
+        "name": "mixed vegetables",
+        "image": "mixed-vegetables.png"
+    }
+]
