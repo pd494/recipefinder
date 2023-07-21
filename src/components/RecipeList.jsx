@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Image, Badge, Link, Flex, IconButton } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons'; // Import the star icon from Chakra UI
 import recipes from '../recipes.json';
 import RecipeData from './RecipeData';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { doc, setDoc, deleteDoc } from "firebase/firestore"; 
+import { doc, setDoc, deleteDoc, getDoc } from "firebase/firestore"; 
 
 
 
@@ -23,6 +23,8 @@ const firebaseConfig = {
 
 
 function RecipeList() {
+
+  
   const app = initializeApp(firebaseConfig);
 
   const db = getFirestore(app);
@@ -30,6 +32,7 @@ function RecipeList() {
   const [selectedRecipe, setSelectedRecipe] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [favorites, setFavorites] = useState([]);
+
 
   const handleOpenDrawer = (recipe) => {
     setSelectedRecipe(recipe);
@@ -42,20 +45,16 @@ function RecipeList() {
   };
 
    const handleFavorite = (recipe) => {
-    if (favorites.includes(recipe)) {
-      const cityRef = doc(db, 'recipes', 'favs');
 
-      // If the recipe is already in favorites, remove it
-      setFavorites(favorites.filter((fav) => fav !== recipe));
+    
+    if (favorites.includes(recipe)) {
+      console.log("its coming")
+      setFavorites(favorites.filter((fav) => fav.title !== recipe.title));
       deleteDoc(doc(db, "recipes", recipe.title));
 
-      
-
-      
     } 
     else {
-      // If the recipe is not in favorites, add it
-      const cityRef = doc(db, 'recipes', 'favs');
+      console.log('hllloo')
       setDoc(doc(db,"recipes", recipe.title), {name: recipe.title, id: recipe.id, image: recipe.image}, {merge:true});
       
       setFavorites([...favorites, recipe]);
@@ -63,12 +62,27 @@ function RecipeList() {
     }
   };
 
-  const isRecipeFavorite = (recipe) => {
-    return favorites.includes(recipe);
+  const isRecipeFavorite = async(recipe) => {
+    const ref = doc(db, "recipes", recipe.title);
+    const docSnap = await getDoc(ref);
+
+    return docSnap.exists() || favorites.includes(recipe); 
+
+
   };
 
   const recipeCard = recipes.map((recipe) => {
-    const isFavorite = isRecipeFavorite(recipe);
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    useEffect(() => {
+      const checkFavoriteStatus = async () => {
+        const favoriteStatus = await isRecipeFavorite(recipe);
+        setIsFavorite(favoriteStatus);
+      };
+
+      checkFavoriteStatus();
+    }, [favorites]);
+
 
     return (
       <Flex key={recipe.id} flexDirection="row">

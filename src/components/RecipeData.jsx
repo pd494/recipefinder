@@ -5,7 +5,6 @@ import { Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerC
 
 const RecipeData = ({ isOpen, onClose, recipe }) => {
   
-  console.log(recipe.title)
 
   return (
     <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
