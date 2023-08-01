@@ -10,18 +10,11 @@ body {
 
 }
 
- .RecipeList{
-  display: flex;
-  flex-direction:row;
-  gap: 7%;
-  margin-top: 15%;
-  justify-content: space-evenly;
-}
-
 
 .left{
   display:flex;
   border-radius: px;
+  /* background-color: #; */
 
   flex-direction:column;
   width: 30%;
@@ -30,13 +23,32 @@ body {
 
 
 .right {
-  background-color: bisque;
-  border-radius: px;
+  background-color: #EDEEC9;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly; /* You can use other values like "flex-start", "center", or "space-between" */
+  align-items: flex-start; 
 
-  float: left; 
+
+  /* float: left;  */
   width: 70%;
 }
 
+.RecipeList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly; /* You can use other values like "flex-start", "center", or "space-between" */
+  align-items: flex-start; 
+  margin-top: 15%;
+  gap:7%;
+
+}
+
+.boxes{
+  width: 300px; /* Adjust the width as needed */
+  height: 400px; /* Adjust the height as needed */
+
+}
 
 .line {
   width: 2px;
@@ -52,14 +64,17 @@ body {
 
 }
 
+nav{
+  height: 10vh;
 
+}
 .submit{
   margin-top: 250px;
 }
 
 .container{
   display:flex;
-  flex-direction: left;
+  flex-direction: row;
   clear: both;
   padding: 0;
   margin: 0;

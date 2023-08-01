@@ -3,11 +3,10 @@ import { Box, Image, Badge, Link, Flex, IconButton } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons'; // Import the star icon from Chakra UI
 import recipes from '../recipes.json';
 import RecipeData from './RecipeData';
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { doc, setDoc, deleteDoc, getDoc } from "firebase/firestore"; 
-
-
+import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { ings } from './Card';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqyDt1yN9fBKDEZSOemzMkHn8_q90y5S8",
@@ -23,16 +22,30 @@ const firebaseConfig = {
 
 
 function RecipeList() {
-
-  
+  const APIKEY = 'e12d3e64de324ab79d4724597ad7870a';
   const app = initializeApp(firebaseConfig);
-
   const db = getFirestore(app);
+  const [recipecards, setRecipecards] = useState([]);
+
+  useEffect(() => {
+    // Inside the useEffect hook, you can safely access user.email
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const uid = user?.email; // Use optional chaining to prevent null pointer exceptions
+    console.log(user);
+    console.log(uid);
+
+    // You can also perform any other side effects or initializations here
+
+    // Cleanup function (optional)
+    return () => {
+      // Perform any cleanup tasks, if needed
+    };
+  }, []); // The useEffect 
 
   const [selectedRecipe, setSelectedRecipe] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [favorites, setFavorites] = useState([]);
-
 
   const handleOpenDrawer = (recipe) => {
     setSelectedRecipe(recipe);
@@ -44,98 +57,103 @@ function RecipeList() {
     setIsDrawerOpen(false);
   };
 
-   const handleFavorite = (recipe) => {
-
-    
+  const handleFavorite = (recipe) => {
     if (favorites.includes(recipe)) {
-      console.log("its coming")
+      console.log('its coming');
       setFavorites(favorites.filter((fav) => fav.title !== recipe.title));
-      deleteDoc(doc(db, "recipes", recipe.title));
-
-    } 
-    else {
-      console.log('hllloo')
-      setDoc(doc(db,"recipes", recipe.title), {name: recipe.title, id: recipe.id, image: recipe.image}, {merge:true});
-      
+      deleteDoc(doc(db, uid, recipe.title));
+    } else {
+      console.log('hllloo');
+      setDoc(doc(db, uid, recipe.title), { name: recipe.title, id: recipe.id, image: recipe.image }, { merge: true });
       setFavorites([...favorites, recipe]);
-      
     }
   };
 
-  const isRecipeFavorite = async(recipe) => {
-    const ref = doc(db, "recipes", recipe.title);
+  const isRecipeFavorite = async (recipe) => {
+    const ref = doc(db, 'recipes', recipe.title);
     const docSnap = await getDoc(ref);
-
-    return docSnap.exists() || favorites.includes(recipe); 
-
-
+    return docSnap.exists() || favorites.includes(recipe);
   };
 
-  const recipeCard = recipes.map((recipe) => {
-    const [isFavorite, setIsFavorite] = useState(false);
+  useEffect(() => {
+    const ingAPI = ings.map((ingredient, index) => {
+      if (index === 0) {
+        return ingredient + ',';
+      } else {
+        return '+' + ingredient + ',';
+      }
+    }).join('');
 
-    useEffect(() => {
-      const checkFavoriteStatus = async () => {
-        const favoriteStatus = await isRecipeFavorite(recipe);
-        setIsFavorite(favoriteStatus);
-      };
-
-      checkFavoriteStatus();
-    }, [favorites]);
+    var apistring = '';
+    const lastCommaIndex = ingAPI.lastIndexOf(',');
+    if (lastCommaIndex !== -1) {
+      apistring = ingAPI.slice(0, lastCommaIndex) + ingAPI.slice(lastCommaIndex + 1);
+    }
 
 
-    return (
-      <Flex key={recipe.id} flexDirection="row">
-        <Link onClick={() => handleOpenDrawer(recipe)}>
-          <Box maxW="sm" borderWidth="1px" bg="orange.100" borderRadius="md" overflow="hidden">
-            <Image src={recipe.image} alt="recipeimage" />
-            <Box p="3">
-              <Box display="flex" alignItems="baseline">
-                <Badge borderRadius="full" px="2" colorScheme="teal">
-                  New
-                </Badge>
-                <Box
-                  color="gray.500"
-                  fontWeight="semibold"
-                  letterSpacing="wide"
-                  fontSize="xs"
-                  textTransform="uppercase"
-                  ml="2"
-                >
-                  {recipe.beds} beds &bull; {recipe.baths} baths
+    fetch(
+      `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${apistring}&apiKey=${APIKEY}`
+    )
+      .then((response) => response.json())
+      .then((json) => {
+        // Map the fetched recipes to JSX elements and update the recipecards state
+        const mappedRecipes = json.map((recipe) => (
+
+            <Link onClick={() => handleOpenDrawer(recipe)}>
+
+              <Box className = "boxes" maxW="sm"  borderWidth="1px" bg="orange.100" borderRadius="md" overflow="hidden">
+                <Image src={recipe.image} alt="recipeimage" />
+                <Box p="3">
+                  <Box>
+                    <Badge borderRadius="full" px="2" colorScheme="teal">
+                      New
+                    </Badge>
+                    <Box
+                      color="gray.500"
+                      fontWeight="semibold"
+                      letterSpacing="wide"
+                      fontSize="xs"
+                      textTransform="uppercase"
+                      ml="2"
+                    >
+                      {recipe.beds} beds &bull; {recipe.baths} baths
+                    </Box>
+                  </Box>
+                  <Box mt="1" fontWeight="semibold" as="h4" lineHeight="tight" noOfLines={1}>
+                    {recipe.title}
+                  </Box>
+                  <Box>
+                    <Box as="span" color="gray.600" fontSize="sm">
+                      / wk
+                    </Box>
+                  </Box>
+                  <Box  mt="2" >
+                    <Box as="span" ml="2" color="gray.600" fontSize="sm">
+                      {recipe.reviewCount} reviews
+                    </Box>
+                    <IconButton
+                      ml="auto"
+                      aria-label="Favorite"
+                      onClick={() => handleFavorite(recipe)}
+                    />
+                  </Box>
                 </Box>
               </Box>
-              <Box mt="1" fontWeight="semibold" as="h4" lineHeight="tight" noOfLines={1}>
-                {recipe.title}
-              </Box>
-              <Box>
-                {recipe.formattedPrice}
-                <Box as="span" color="gray.600" fontSize="sm">
-                  / wk
-                </Box>
-              </Box>
-              <Box display="flex" mt="2" alignItems="center">
-                <Box as="span" ml="2" color="gray.600" fontSize="sm">
-                  {recipe.reviewCount} reviews
-                </Box>
-                <IconButton
-                  ml="auto"
-                  aria-label="Favorite"
-                  icon={<StarIcon color={isFavorite ? 'yellow.400' : 'gray.300'} />}
-                  onClick={() => handleFavorite(recipe)}
-                />
-              </Box>
-            </Box>
-          </Box>
-        </Link>
-      </Flex>
-    );
-  });
+
+            </Link>
+        ));
+        setRecipecards(mappedRecipes);
+      })
+      .catch((error) => console.error(error));
+
+
+  }, []);
+
 
 
   return (
-    <div className='RecipeList'>
-      {recipeCard}
+    <div className="RecipeList" >
+      {recipecards}
       <RecipeData isOpen={isDrawerOpen} onClose={handleCloseDrawer} recipe={selectedRecipe} />
     </div>
   );
