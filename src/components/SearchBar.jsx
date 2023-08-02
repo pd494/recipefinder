@@ -5,7 +5,7 @@ import {ings} from './Card'
 import RecipeList from './RecipeList'
 import App from '../App'
 
-const APIKEY = 'e12d3e64de324ab79d4724597ad7870a';
+const APIKEY = '66f5a63a1bcc471f9bfc8702874cbdd0';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 
@@ -29,7 +29,6 @@ export function SearchBar({setSubmitted}) {
 
     // changeSubmit(true);
     setSubmitted(true)
-    console.log('k')
     // <RecipeList submit = {submitted}/>
 
     

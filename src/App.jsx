@@ -19,7 +19,6 @@ const HomePage = () => {
   const [butClicked, setButClicked] = useState(false);
   const [user, setUser] = useState(null); // State to store user data
   const [submitted, setSubmitted] = useState(false)
-  console.log(submitted)
 
   // Initialize Firebase
   // ...
@@ -34,7 +33,6 @@ const HomePage = () => {
       if (user) {
         // User is signed in
         setUser(user); // Store the user data in state
-        user2 = user;
       } else {
         // User is signed out or not logged in
         setUser(null); // Clear the user data from state

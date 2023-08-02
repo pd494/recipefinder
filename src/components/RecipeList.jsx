@@ -5,7 +5,7 @@ import recipes from '../recipes.json';
 import RecipeData from './RecipeData';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getAuth, getMultiFactorResolver } from 'firebase/auth';
 import { ings } from './Card';
 
 const firebaseConfig = {
@@ -22,18 +22,23 @@ const firebaseConfig = {
 
 
 function RecipeList() {
-  const APIKEY = 'e12d3e64de324ab79d4724597ad7870a';
+  const APIKEY = '66f5a63a1bcc471f9bfc8702874cbdd0';
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const [recipecards, setRecipecards] = useState([]);
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
+
 
   useEffect(() => {
     // Inside the useEffect hook, you can safely access user.email
     const auth = getAuth();
     const user = auth.currentUser;
     const uid = user?.email; // Use optional chaining to prevent null pointer exceptions
-    console.log(user);
-    console.log(uid);
+
+    if (user) {
+      setCurrentUserEmail(user.email);
+    }
+
 
     // You can also perform any other side effects or initializations here
 
@@ -46,6 +51,7 @@ function RecipeList() {
   const [selectedRecipe, setSelectedRecipe] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [favorites, setFavorites] = useState([]);
+  const [color, setColor]  = useState('')
 
   const handleOpenDrawer = (recipe) => {
     setSelectedRecipe(recipe);
@@ -61,19 +67,47 @@ function RecipeList() {
     if (favorites.includes(recipe)) {
       console.log('its coming');
       setFavorites(favorites.filter((fav) => fav.title !== recipe.title));
-      deleteDoc(doc(db, uid, recipe.title));
+      deleteDoc(doc(db, currentUserEmail, recipe.title));
     } else {
       console.log('hllloo');
-      setDoc(doc(db, uid, recipe.title), { name: recipe.title, id: recipe.id, image: recipe.image }, { merge: true });
+      setDoc(doc(db, currentUserEmail, recipe.title), { name: recipe.title, id: recipe.id, image: recipe.image }, { merge: true });
       setFavorites([...favorites, recipe]);
     }
   };
 
   const isRecipeFavorite = async (recipe) => {
-    const ref = doc(db, 'recipes', recipe.title);
-    const docSnap = await getDoc(ref);
-    return docSnap.exists() || favorites.includes(recipe);
+    const ref = doc(db, currentUserEmail, recipe.title);
+    let docSnap;
+    try {
+       docSnap = await getDoc(ref);
+        return docSnap.exists()      
+    } catch (error) {
+      return false;
+    }
+  
+
+  }
+
+  const getColor = (recipe) => {
+    console.log('its inside')
+
+    return isRecipeFavorite(recipe)
+      .then((x) => {
+        console.log(x)
+        return x
+      })
+      .catch((error) => {
+        console.log(error)
+
+        // Handle potential errors here
+      });
   };
+  
+  
+
+
+
+
 
   useEffect(() => {
     const ingAPI = ings.map((ingredient, index) => {
@@ -95,9 +129,15 @@ function RecipeList() {
       `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${apistring}&apiKey=${APIKEY}`
     )
       .then((response) => response.json())
-      .then((json) => {
+      .then( async (json) => {
+        
+        const favoritePromises = json.map((recipe) => isRecipeFavorite(recipe));
+        const favoritesResults = await Promise.all(favoritePromises);
+
         // Map the fetched recipes to JSX elements and update the recipecards state
-        const mappedRecipes = json.map((recipe) => (
+        const mappedRecipes = json.map((recipe, index) => (
+
+
 
             <Link onClick={() => handleOpenDrawer(recipe)}>
 
@@ -132,11 +172,11 @@ function RecipeList() {
                       {recipe.reviewCount} reviews
                     </Box>
                     <IconButton
-                      ml="auto"
-                      aria-label="Favorite"
-                      onClick={() => handleFavorite(recipe)}
-                    />
-                  </Box>
+                  ml="auto"
+                  aria-label="Favorite"
+                  icon={<StarIcon color={favoritesResults[index] ? 'yellow.400' : 'gray.400'} />}
+                  onClick={() => handleFavorite(recipe) }
+                />                  </Box>
                 </Box>
               </Box>
 
