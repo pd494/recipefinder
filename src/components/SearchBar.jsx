@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Card from './Card';
 import { Input } from '@chakra-ui/react';
-import {clearIngs} from './Card'
+import {ings} from './Card'
 import RecipeList from './RecipeList'
 import App from '../App'
 
-const APIKEY = '33a296e7e37e49bfbce24319599a4529';
+const APIKEY = '66f5a63a1bcc471f9bfc8702874cbdd0';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 

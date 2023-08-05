@@ -7,9 +7,6 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { getAuth, getMultiFactorResolver } from 'firebase/auth';
 import { ings } from './Card';
-import { useToast } from '@chakra-ui/react'
-import { json } from 'react-router-dom';
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqyDt1yN9fBKDEZSOemzMkHn8_q90y5S8",
@@ -25,29 +22,31 @@ const firebaseConfig = {
 
 
 function RecipeList() {
-  const APIKEY = '33a296e7e37e49bfbce24319599a4529';
+  const APIKEY = '66f5a63a1bcc471f9bfc8702874cbdd0';
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const [recipecards, setRecipecards] = useState([]);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
 
-  const toast = useToast()
-
-
 
   useEffect(() => {
+    // Inside the useEffect hook, you can safely access user.email
     const auth = getAuth();
     const user = auth.currentUser;
-    const uid = user?.email;
+    const uid = user?.email; // Use optional chaining to prevent null pointer exceptions
 
     if (user) {
       setCurrentUserEmail(user.email);
     }
 
 
+    // You can also perform any other side effects or initializations here
+
+    // Cleanup function (optional)
     return () => {
+      // Perform any cleanup tasks, if needed
     };
-  }, [currentUserEmail]); // The useEffect 
+  }, []); // The useEffect 
 
   const [selectedRecipe, setSelectedRecipe] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -65,41 +64,16 @@ function RecipeList() {
   };
 
   const handleFavorite = (recipe) => {
-
-
-    if (favorites.some((fav) => fav.title === recipe.title)) {
-      console.log('it is already there');
-      setFavorites((prevFavorites) => prevFavorites.filter((fav) => fav.title !== recipe.title));
+    if (favorites.includes(recipe)) {
+      console.log('its coming');
+      setFavorites(favorites.filter((fav) => fav.title !== recipe.title));
       deleteDoc(doc(db, currentUserEmail, recipe.title));
-
-      toast({
-        title: 'Removed from Favorites.',
-        description: "We've removed this from your favorites.",
-        status: 'success',
-        duration: 6000,
-        isClosable: true,
-      })
-
     } else {
-      console.log('it is not there');
-      setDoc(doc(db, currentUserEmail, recipe.title), {
-        name: recipe.title,
-        id: recipe.id,
-        image: recipe.image,
-      }, { merge: true });
-      setFavorites((prevFavorites) => [...prevFavorites, recipe]);
-
-
-      toast({
-        title: 'Added to Favorites.',
-        description: "We've added this to your favorites.",
-        status: 'success',
-        duration: 6000,
-        isClosable: true,
-      })
+      console.log('hllloo');
+      setDoc(doc(db, currentUserEmail, recipe.title), { name: recipe.title, id: recipe.id, image: recipe.image }, { merge: true });
+      setFavorites([...favorites, recipe]);
     }
   };
-  
 
   const isRecipeFavorite = async (recipe) => {
     const ref = doc(db, currentUserEmail, recipe.title);
@@ -149,8 +123,6 @@ function RecipeList() {
     if (lastCommaIndex !== -1) {
       apistring = ingAPI.slice(0, lastCommaIndex) + ingAPI.slice(lastCommaIndex + 1);
     }
-
-    console.log("hello")
 
 
     fetch(
@@ -202,7 +174,7 @@ function RecipeList() {
                     <IconButton
                   ml="auto"
                   aria-label="Favorite"
-                  icon={<StarIcon color={(favorites.includes(recipe) || favoritesResults[index]) ? 'yellow.400' : 'gray.400'} />}
+                  icon={<StarIcon color={favoritesResults[index] ? 'yellow.400' : 'gray.400'} />}
                   onClick={() => handleFavorite(recipe) }
                 />                  </Box>
                 </Box>
@@ -215,7 +187,7 @@ function RecipeList() {
       .catch((error) => console.error(error));
 
 
-  }, [currentUserEmail, favorites, json]);
+  }, []);
 
 
 

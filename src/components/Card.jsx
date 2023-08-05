@@ -15,28 +15,20 @@ import {
 
 export let ings = [];
 
-
-export function clearIngs()
-{
-  ings = []
-  console.log(ings)
-}
 export default function Card(props) {
-
-
-
-
   const [buttonPressed, setButtonPressed] = useState(false);
   const [selected, addSelected] = useState([]);
   const [rendered, setRender] = useState(false);
 
-  const buttonClicked = (button, ingredientName) => {
+  const buttonClicked = (button) => {
     const root = document.getElementById("left");
     const container = document.createElement("div");
 
     if (!buttonPressed) {
+      const ingredientName = button.textContent || button.innerText;
       ings.push(ingredientName);
       setButtonPressed(true);
+      ingredientName;
       let x = document.getElementById("Ingredients");
       let button2 = button.cloneNode(true);
       button2.color = "red";
@@ -53,7 +45,7 @@ export default function Card(props) {
       <Button
         id="but"
         className="CardButton"
-        onClick={(e) => buttonClicked(e.target, props.name)}
+        onClick={(e) => buttonClicked(e.target)}
         variant="unstyled"
         display="flex"
         flexDirection="row"
