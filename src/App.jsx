@@ -19,6 +19,7 @@ const HomePage = () => {
   const [butClicked, setButClicked] = useState(false);
   const [user, setUser] = useState(null); // State to store user data
   const [submitted, setSubmitted] = useState(false)
+  const [ingredients, setIngredients] = useState([])
 
   // Initialize Firebase
   // ...
@@ -43,6 +44,8 @@ const HomePage = () => {
     return () => unsubscribe();
   }, [auth]);
 
+  console.log()
+
   // ...
 
   return (
@@ -57,7 +60,7 @@ const HomePage = () => {
 
         <h1 style={{ fontSize: "4.5rem" }}>Recipe Finder</h1>
         <h2>Find a recipe with ingredients you have</h2>
-        <SearchBar setSubmitted = {setSubmitted} className="search" />
+        <SearchBar  setSubmitted = {setSubmitted} className="search" />
         <h1>Added Ingredients: </h1>
         <div id="Ingredients" className="Ingredients"></div>
       
@@ -68,7 +71,7 @@ const HomePage = () => {
       </Center>
       
       <div className = "right" id="right">
-         {submitted && <RecipeList/>}
+         {<RecipeList setSubmitted = {setSubmitted} submitted = {submitted}/>}
       </div>
 
     </div>
@@ -102,8 +105,6 @@ export function Navbar({user}) {
   const favoritesClick = () => {
     navigate('/favorites');
   }
-
-
 
     return (
       <Box  bgGradient="linear(to-r, green.500, green.300, green.100)"

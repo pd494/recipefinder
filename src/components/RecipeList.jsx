@@ -7,6 +7,10 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { getAuth, getMultiFactorResolver } from 'firebase/auth';
 import { ings } from './Card';
+import { useToast } from '@chakra-ui/react'
+import { json } from 'react-router-dom';
+import { clearIngs } from './Card';
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqyDt1yN9fBKDEZSOemzMkHn8_q90y5S8",
@@ -19,34 +23,32 @@ const firebaseConfig = {
 };
 
 
+console.log("hi")
 
 
-function RecipeList() {
-  const APIKEY = '66f5a63a1bcc471f9bfc8702874cbdd0';
+function RecipeList({setSubmitted, submitted}) {
+  const APIKEY = '32fa7af168be4ea891b77f954508a277';
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const [recipecards, setRecipecards] = useState([]);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
+  const [ingstoChange, setIngsToChange] = useState([]);
+
+  const toast = useToast()
+  const auth = getAuth();
+  const user = auth.currentUser;
 
 
   useEffect(() => {
-    // Inside the useEffect hook, you can safely access user.email
-    const auth = getAuth();
-    const user = auth.currentUser;
-    const uid = user?.email; // Use optional chaining to prevent null pointer exceptions
-
+    
     if (user) {
       setCurrentUserEmail(user.email);
     }
 
 
-    // You can also perform any other side effects or initializations here
-
-    // Cleanup function (optional)
     return () => {
-      // Perform any cleanup tasks, if needed
     };
-  }, []); // The useEffect 
+  }, [user]); // The useEffect 
 
   const [selectedRecipe, setSelectedRecipe] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -64,16 +66,41 @@ function RecipeList() {
   };
 
   const handleFavorite = (recipe) => {
-    if (favorites.includes(recipe)) {
-      console.log('its coming');
-      setFavorites(favorites.filter((fav) => fav.title !== recipe.title));
+
+
+    if (favorites.some((fav) => fav.title == recipe.title)) {
+      console.log('it is already there');
+      setFavorites((prevFavorites) => prevFavorites.filter((fav) => fav.title !== recipe.title));
       deleteDoc(doc(db, currentUserEmail, recipe.title));
+
+      toast({
+        title: 'Removed from Favorites.',
+        description: "We've removed this from your favorites.",
+        status: 'success',
+        duration: 6000,
+        isClosable: true,
+      })
+
     } else {
-      console.log('hllloo');
-      setDoc(doc(db, currentUserEmail, recipe.title), { name: recipe.title, id: recipe.id, image: recipe.image }, { merge: true });
-      setFavorites([...favorites, recipe]);
+      console.log('it is not there');
+      setDoc(doc(db, currentUserEmail, recipe.title), {
+        name: recipe.title,
+        id: recipe.id,
+        image: recipe.image,
+      }, { merge: true });
+      setFavorites((prevFavorites) => [...prevFavorites, recipe]);
+
+
+      toast({
+        title: 'Added to Favorites.',
+        description: "We've added this to your favorites.",
+        status: 'success',
+        duration: 6000,
+        isClosable: true,
+      })
     }
   };
+  
 
   const isRecipeFavorite = async (recipe) => {
     const ref = doc(db, currentUserEmail, recipe.title);
@@ -110,6 +137,7 @@ function RecipeList() {
 
 
   useEffect(() => {
+    setIngsToChange(ings)
     const ingAPI = ings.map((ingredient, index) => {
       if (index === 0) {
         return ingredient + ',';
@@ -124,18 +152,22 @@ function RecipeList() {
       apistring = ingAPI.slice(0, lastCommaIndex) + ingAPI.slice(lastCommaIndex + 1);
     }
 
+    console.log("hello")
+
 
     fetch(
-      `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${apistring}&apiKey=${APIKEY}`
+      `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${apistring}&apiKey=${APIKEY}&number=3`
     )
       .then((response) => response.json())
       .then( async (json) => {
         
         const favoritePromises = json.map((recipe) => isRecipeFavorite(recipe));
         const favoritesResults = await Promise.all(favoritePromises);
+        let mappedRecipes = [];
 
-        // Map the fetched recipes to JSX elements and update the recipecards state
-        const mappedRecipes = json.map((recipe, index) => (
+        if(currentUserEmail!='')
+        {
+          mappedRecipes = json.map((recipe, index) => (
 
 
 
@@ -174,7 +206,7 @@ function RecipeList() {
                     <IconButton
                   ml="auto"
                   aria-label="Favorite"
-                  icon={<StarIcon color={favoritesResults[index] ? 'yellow.400' : 'gray.400'} />}
+                  icon={<StarIcon color={(favorites.includes(recipe) || favoritesResults[index]) ? 'yellow.400' : 'gray.400'} />}
                   onClick={() => handleFavorite(recipe) }
                 />                  </Box>
                 </Box>
@@ -182,12 +214,27 @@ function RecipeList() {
 
             </Link>
         ));
+        }
+        // Map the fetched recipes to JSX elements and update the recipecards state
+        
         setRecipecards(mappedRecipes);
+
+
       })
       .catch((error) => console.error(error));
 
+      console.log("ings to change: " + ingstoChange)
+      clearIngs()
+      setSubmitted(false)
+      document.getElementById("Ingredients").innerHTML = "";
 
-  }, []);
+
+    
+  }, [currentUserEmail, favorites, submitted]);
+
+
+
+  
 
 
 
@@ -198,5 +245,6 @@ function RecipeList() {
     </div>
   );
 }
+
 
 export default RecipeList;

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Card from './Card';
+import Card, { clearIngs } from './Card';
 import { Input } from '@chakra-ui/react';
 import {ings} from './Card'
 import RecipeList from './RecipeList'
 import App from '../App'
 
-const APIKEY = '66f5a63a1bcc471f9bfc8702874cbdd0';
+const APIKEY = '32fa7af168be4ea891b77f954508a277';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 
@@ -25,10 +25,12 @@ export function SearchBar({setSubmitted}) {
     setData(value);
   };
 
+  
   const handleSubmit = () => {
 
     // changeSubmit(true);
-    setSubmitted(true)
+    setSubmitted(!submitted)
+    // clearIngs();
     // <RecipeList submit = {submitted}/>
 
     
@@ -41,7 +43,7 @@ export function SearchBar({setSubmitted}) {
     if (data.trim() !== '') {
       timeoutId = setTimeout(() => {
         fetch(
-          `https://api.spoonacular.com/food/ingredients/autocomplete?query=${data}&apiKey=${APIKEY}`
+          `https://api.spoonacular.com/food/ingredients/autocomplete?query=${data}&apiKey=${APIKEY}&number=3`
         )
           .then((response) => response.json())
           .then((json) => {
@@ -56,9 +58,8 @@ export function SearchBar({setSubmitted}) {
             setAutoFillIngredients(autoFillIngredients);
           })
           .catch((error) => console.error(error));
-      }, 500); // Delay the API call by 500ms (adjust as needed)
+      }, 500);
     } else {
-      // Clear the ingredients if the input is empty
       setAutoFillIngredients([]);
     }
 
